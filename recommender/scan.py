@@ -33,6 +33,15 @@ CPU_COUNT = psutil.cpu_count(logical=True) or 1
 CPU_FLOOR = 10.0             # ignore processes quieter than this
 MEM_FLOOR_MB = 500.0         # ...unless they are holding this much
 
+# Windows pseudo-processes. "System Idle Process" accounts for UNUSED cycles,
+# so a high reading there means the machine is quiet -- the opposite of a
+# problem. PID 0 is Idle, PID 4 is the System process; neither is advisable.
+IGNORE_PIDS = {0, 4}
+IGNORE_NAMES = {
+    "system idle process", "system", "registry",
+    "memory compression", "secure system", "idle",
+}
+
 # (pid, create_time) -> (last_memory_mb, last_seen_monotonic)
 _mem_history: dict[tuple[int, float], tuple[float, float]] = {}
 
@@ -75,6 +84,9 @@ def _collect() -> list[SystemState]:
             cpu = p.cpu_percent(None) / CPU_COUNT
             mem_mb = info["memory_info"].rss / (1024 * 1024)
         except (psutil.NoSuchProcess, psutil.AccessDenied, AttributeError, TypeError):
+            continue
+
+        if info["pid"] in IGNORE_PIDS or (info["name"] or "").lower() in IGNORE_NAMES:
             continue
 
         key = (info["pid"], info["create_time"])
