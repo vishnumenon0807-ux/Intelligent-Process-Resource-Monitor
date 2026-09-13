@@ -16,12 +16,22 @@ Once this is running, scan.py is redundant -- retire it.
 from __future__ import annotations
 
 import logging
+from datetime import datetime
 from typing import Any, Mapping
 
 from .recommender import RECOMMENDER, SystemState
 from .store import save
 
 log = logging.getLogger("iprm.bridge")
+
+# The engine may not configure logging. Without a handler, log.exception()
+# writes nowhere and advisory failures vanish silently -- the worst outcome
+# for a subsystem that is meant to fail quietly.
+if not logging.getLogger().handlers and not log.handlers:
+    _h = logging.StreamHandler()
+    _h.setFormatter(logging.Formatter("  advisory :: %(message)s"))
+    log.addHandler(_h)
+    log.setLevel(logging.INFO)
 
 
 def _first(d: Mapping[str, Any], *keys: str, default: Any = None) -> Any:
@@ -30,6 +40,21 @@ def _first(d: Mapping[str, Any], *keys: str, default: Any = None) -> Any:
         if k in d and d[k] is not None:
             return d[k]
     return default
+
+
+def _epoch(value: Any) -> float | None:
+    """
+    The engine reads create_time from Postgres as a timestamptz; psutil and
+    SystemState both use a Unix epoch float. Normalise whichever arrives.
+    """
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value.timestamp()
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def normalise_severity(score: float | None) -> float | None:
@@ -58,7 +83,7 @@ def build_state(
     return SystemState(
         pid=pids[0] if pids else _first(tree, "pid"),
         name=_first(tree, "name", default="") or "",
-        create_time=_first(tree, "create_time"),
+        create_time=_epoch(_first(tree, "create_time")),
         cpu_percent=float(_first(tree, "cpu_percent", "cpu", default=0.0)),
         memory_mb=float(_first(tree, "ram_mb", "memory_mb", "ram", default=0.0)),
         memory_growth_mb_per_min=memory_growth_mb_per_min,
@@ -87,8 +112,11 @@ def advise_from_anomaly(
 ) -> int | None:
     """
     Returns the new advisory id, or None if no rule matched or it was deduped.
-    Never raises -- an advisory failure must not stop the engine from writing
-    its root cause.
+
+    The advisory work runs inside its own savepoint. Without that, a failed
+    INSERT here aborts the CALLER's transaction too, and the engine's own
+    root_causes insert dies afterwards with InFailedSqlTransaction -- the
+    failure shows up somewhere it did not originate.
     """
     try:
         state = build_state(
@@ -98,7 +126,11 @@ def advise_from_anomaly(
         rec = RECOMMENDER.advise(state)
         if rec is None:
             return None
-        advisory_id = save(conn, rec)
+
+        # psycopg3: nested transaction() inside an open one = SAVEPOINT.
+        with conn.transaction():
+            advisory_id = save(conn, rec)
+
         if advisory_id:
             log.info("advisory %s [%s] %s", advisory_id, rec.rule_id, rec.title)
         return advisory_id

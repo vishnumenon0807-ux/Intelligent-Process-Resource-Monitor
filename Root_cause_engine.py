@@ -34,7 +34,7 @@ import time
 import signal
 import argparse
 from collections import defaultdict
-
+from recommender.bridge import advise_from_anomaly
 import psycopg
 from psycopg.types.json import Jsonb
 
@@ -224,6 +224,7 @@ def run_analyzer(conn, tree, anomaly, snapshot_id):
 # ----------------------------------------------------------------
 
 def insert_root_cause(conn, anomaly, tree, result, contributing):
+    advise_from_anomaly(conn, anomaly, dominant, result)
     with conn.cursor() as cur:
         cur.execute(
             """
