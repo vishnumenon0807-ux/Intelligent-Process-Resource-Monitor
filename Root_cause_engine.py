@@ -60,7 +60,7 @@ ANALYZER_REGISTRY = {
 # A tree must account for at least this share of system CPU before
 # the engine will name it as the cause. Below this, no single
 # process explains the anomaly.
-DOMINANCE_THRESHOLD = 25.0
+DOMINANCE_THRESHOLD = 15.0
 # Pseudo-processes that are never a root cause.
 # "System Idle Process" measures UNUSED cpu — high values mean the
 # machine is free, not busy.
@@ -367,6 +367,7 @@ def explain_anomaly(conn, anomaly_id, verbose=False):
     }
 
     root_cause_id = insert_root_cause(conn, anomaly, dominant, result, contributing)
+    advise_from_anomaly(conn, anomaly, dominant, result)
     insert_recommendations(conn, root_cause_id, anomaly["timestamp"],
                            result.get("recommendations", []))
 
