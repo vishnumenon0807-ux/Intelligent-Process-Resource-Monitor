@@ -1,0 +1,20 @@
+﻿# secrets
+.env
+.env.*
+!.env.example
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# node / vite
+dashboard/node_modules/
+dashboard/dist/
+dashboard/.vite/
+
+# misc
+*.log
+.idea/
+.vscode/
