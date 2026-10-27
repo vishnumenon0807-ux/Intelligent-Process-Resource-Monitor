@@ -1,3 +1,4 @@
+import Forecast from "./forecast";     
 import { useCallback, useEffect, useState } from "react";
 import {
   Area,
@@ -357,7 +358,7 @@ export default function App() {
         )}
 
         <History data={history} window={window_} onWindow={setWindow} />
-
+        <Forecast window={window_} />
         <Feed
           items={items}
           category={category}

@@ -214,16 +214,8 @@ export default function Forecast({ window: window_ = "1h" }) {
                   <strong>{row.rmse?.toFixed(2)}</strong>
                   <span>RMSE, percentage points</span>
                 </div>
-                <div className="fc-stat">
-                  <strong>{row.scored}</strong>
-                  <span>forecasts scored, last {accuracy.hours}h</span>
-                </div>
-                {accuracy?.version && (
-                  <div className="fc-stat">
-                    <strong>{accuracy.version}</strong>
-                    <span>active model</span>
-                  </div>
-                )}
+                
+        
               </>
             ) : (
               <p className="fc-msg">
