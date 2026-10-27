@@ -1,0 +1,41 @@
+# Intelligent Process Resource Monitor
+#
+#   python -m pip install -r requirements.txt
+#
+# PyTorch is not on this list on purpose. Install it first, from its own
+# index, because the PyPI wheel pulls CUDA packages this project does not
+# need:
+#
+#   python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+#
+# Built and tested on Python 3.14 on Windows. TensorFlow has no 3.14
+# wheels yet, which is why the LSTM is PyTorch.
+
+# --- collection ----------------------------------------------------
+psutil>=5.9
+py-cpuinfo>=9.0          # readable CPU name across platforms
+nvidia-ml-py>=12.535     # GPU utilisation and temperature via NVML
+
+# --- database ------------------------------------------------------
+psycopg[binary]>=3.1     # v3, not psycopg2; the [binary] extra avoids
+                         # needing PostgreSQL build tools on Windows
+python-dotenv>=1.0
+
+# --- models --------------------------------------------------------
+numpy>=1.26
+pandas>=2.1
+scikit-learn>=1.3        # Isolation Forest
+joblib>=1.3              # persists the fitted forest
+
+# --- api -----------------------------------------------------------
+fastapi>=0.110
+uvicorn[standard]>=0.27
+pydantic>=2.6
+
+# --- Windows only ---------------------------------------------------
+# Both are optional. Without them the code falls back: no WMI means
+# non-NVIDIA GPUs go undetected, and no pywin32 means process display
+# names come from the curated table and the filename rather than from
+# each executable's version resource.
+wmi>=1.5.1 ; sys_platform == "win32"
+pywin32>=306 ; sys_platform == "win32"

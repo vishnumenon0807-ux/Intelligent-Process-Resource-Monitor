@@ -1,0 +1,180 @@
+/*
+ * Forecast.css
+ * ------------
+ * Self-contained, fc- prefixed so nothing collides with the classes
+ * already in the dashboard. Colours come from CSS variables with
+ * fallbacks, so the panel picks up your theme if you define them and
+ * still looks right if you do not.
+ *
+ * If your existing panels already have a shared card style, delete the
+ * .fc block below and put your own panel class on the <section>.
+ */
+
+.fc {
+  background: var(--panel, #131c26);
+  border: 1px solid var(--border, #243242);
+  border-radius: 10px;
+  padding: 16px 18px 14px;
+  color: var(--text, #e6edf3);
+}
+
+.fc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.fc-head h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* Metric switcher */
+.fc-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.fc-tabs button {
+  background: transparent;
+  border: 1px solid var(--border, #243242);
+  color: var(--muted, #8da2b5);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.fc-tabs button:hover {
+  color: var(--text, #e6edf3);
+}
+
+.fc-tabs button.on {
+  background: var(--accent-soft, rgba(56, 189, 248, 0.14));
+  border-color: var(--accent, #38bdf8);
+  color: var(--accent, #38bdf8);
+}
+
+/* Messages: empty states and errors */
+.fc-msg {
+  margin: 10px 0;
+  font-size: 13px;
+  color: var(--muted, #8da2b5);
+  line-height: 1.5;
+}
+
+.fc-msg code {
+  background: var(--code-bg, rgba(255, 255, 255, 0.06));
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.fc-err {
+  color: var(--danger, #f87171);
+}
+
+/* Legend, written as plain HTML to match the existing chart panel
+   rather than using the Recharts legend component. */
+.fc-legend {
+  display: flex;
+  gap: 18px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted, #8da2b5);
+}
+
+.fc-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fc-legend i {
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.fc-legend i.dash {
+  background: none;
+  height: 0;
+  border-top: 2px dashed currentColor;
+}
+
+/* Accuracy readout */
+.fc-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border, #243242);
+}
+
+.fc-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fc-stat strong {
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--accent, #38bdf8);
+  font-variant-numeric: tabular-nums;
+}
+
+.fc-stat span {
+  font-size: 11px;
+  color: var(--muted, #8da2b5);
+}
+
+.fc-note {
+  margin: 10px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted, #8da2b5);
+  opacity: 0.85;
+}
+
+/* Tooltip */
+.fc-tip {
+  background: var(--tip-bg, #0b1219);
+  border: 1px solid var(--border, #243242);
+  border-radius: 7px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--text, #e6edf3);
+}
+
+.fc-tip-time {
+  color: var(--muted, #8da2b5);
+  margin-bottom: 5px;
+  font-size: 11px;
+}
+
+.fc-tip-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  line-height: 1.7;
+}
+
+.fc-tip-row strong {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.fc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
